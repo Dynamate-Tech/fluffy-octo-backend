@@ -1,0 +1,110 @@
+[
+  {
+    "title": "crep protect 10%",
+    "createdAt": "2025-07-01T08:13:04.314Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-01T16:14",
+    "endDate": "2025-07-01T16:18"
+  },
+  {
+    "title": "crep protect 10%",
+    "createdAt": "2025-07-01T08:19:59.851Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-01T16:21",
+    "endDate": "2025-07-01T16:23"
+  },
+  {
+    "title": "crep protect 10%",
+    "createdAt": "2025-07-01T09:45:21.486Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": null,
+    "endDate": null
+  },
+  {
+    "title": "crep protect 10%",
+    "createdAt": "2025-07-02T06:58:33.798Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T14:59",
+    "endDate": "2025-07-02T15:01",
+    "status": "pending",
+    "appliedAt": null,
+    "revertedAt": null
+  },
+  {
+    "title": "crep protect 10% testing",
+    "createdAt": "2025-07-02T07:43:54.743Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T15:45",
+    "endDate": "2025-07-02T15:47",
+    "status": "pending",
+    "appliedAt": null,
+    "revertedAt": null
+  },
+  {
+    "title": "crep protect testing ",
+    "createdAt": "2025-07-02T08:04:18.693Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T16:06",
+    "endDate": "2025-07-02T16:08",
+    "status": "pending",
+    "appliedAt": null,
+    "revertedAt": null
+  },
+  {
+    "title": "crep protect testing",
+    "createdAt": "2025-07-02T08:30:00.215Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T16:30",
+    "endDate": "2025-07-02T16:32",
+    "status": "reverted",
+    "appliedAt": "7/2/2025, 4:47:10 PM",
+    "revertedAt": "7/2/2025, 4:48:13 PM"
+  },
+  {
+    "title": "crep protect testing",
+    "createdAt": "2025-07-02T08:30:20.367Z",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T16:31",
+    "endDate": "2025-07-02T16:33",
+    "status": "reverted",
+    "appliedAt": "7/2/2025, 4:47:10 PM",
+    "revertedAt": "7/2/2025, 4:48:13 PM"
+  },
+  {
+    "title": "crep protect testing",
+    "createdAt": "7/2/2025, 4:46:31 PM",
+    "filterType": "collection",
+    "filterValue": "gid://shopify/Collection/277455732799",
+    "ruleType": "compare_percentage",
+    "discountValue": 10,
+    "startDate": "2025-07-02T16:47",
+    "endDate": "2025-07-02T16:48",
+    "status": "reverted",
+    "appliedAt": "7/2/2025, 4:47:10 PM",
+    "revertedAt": "7/2/2025, 4:48:13 PM"
+  }
+]
