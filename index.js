@@ -16,8 +16,11 @@ import { sendEmail, generateEmailBodyFromChanges } from './utils/emailHelpers.js
 const app = express();
 const PORT = process.env.PORT || 3001;
 const scheduledJobs = [];
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://dynamate-promo-price-change.onrender.com'];
 
-app.use(cors({ origin: 'http://localhost:5173' })); // ✅ match your Vite frontend
+//app.use(cors({ origin: 'http://localhost:5173' })); 
 app.use(bodyParser.json());
 app.use(express.json());
 
