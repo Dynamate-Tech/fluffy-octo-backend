@@ -12,13 +12,12 @@ import fs from 'fs';
 import path from 'path';
 import { sendEmail, generateEmailBodyFromChanges } from './utils/emailHelpers.js';
 
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 const scheduledJobs = [];
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://dynamate-promo-price-change.onrender.com'];
+  'https://dynamate-promo-front.onrender.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
