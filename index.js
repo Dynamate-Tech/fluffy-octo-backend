@@ -312,8 +312,10 @@ app.post('/simulate', async (req, res) => {
       ? { collectionId: filterValue }
       : {};
 
-    const response = await axios.get('http://localhost:3001/preview', { params });
-    const variants = response.data;
+    //const response = await axios.get('http://localhost:3001/preview', { params });
+    //const variants = response.data;
+      const result = await fetchPreview(params); // assuming fetchPreview is your logic
+      return res.json(result);
 
     const simulated = simulatePriceChanges(variants, ruleType, discountValue);
     res.json(simulated);
