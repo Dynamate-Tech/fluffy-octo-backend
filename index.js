@@ -11,6 +11,8 @@ import { simulatePriceChanges } from './logic/simulatePriceLogic.js';
 import fs from 'fs';
 import path from 'path';
 import { sendEmail, generateEmailBodyFromChanges } from './utils/emailHelpers.js';
+import { fetchPreview } from './utils/fetchPreview.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -79,7 +81,6 @@ app.get('/tags', async (req, res) => {
   }
 });
 
-
 // -------------------------
 // 🔹 Get all collections (GraphQL)
 // -------------------------
@@ -135,169 +136,22 @@ app.get('/collections', async (req, res) => {
   }
 });
 
-
 // -------------------------
 // 🔹 Preview products by tag or collection
 // -------------------------
 app.get('/preview', async (req, res) => {
-  const tag = req.query.tag;
-  const collectionId = req.query.collectionId;
-
-  if (!tag && !collectionId) {
-    return res.status(400).json({ error: 'Provide either tag or collectionId' });
-  }
-
-  const allVariants = [];
-  let hasNextPage = true;
-  let cursor = null;
-
   try {
-    if (tag) {
-      // console.log('🟢 Preview by tag:', tag);
-
-      while (hasNextPage) {
-        const query = `
-          {
-            products(first: 100${cursor ? `, after: "${cursor}"` : ''}, query: ${JSON.stringify(`tag:${tag}`)}) {
-              pageInfo {
-                hasNextPage
-              }
-              edges {
-                cursor
-                node {
-                  id
-                  title
-                  vendor
-                  variants(first: 10) {
-                    edges {
-                      node {
-                        id
-                        price
-                        compareAtPrice
-                        sku
-                        inventoryQuantity
-                        selectedOptions {
-                          name
-                          value
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-
-        const response = await shopifyGraphQL({ query });
-		// console.log('🧪 Raw Shopify GraphQL response:', JSON.stringify(response, null, 2));
-
-        const products = response?.products;
-        if (!products?.edges || products.edges.length === 0) {
-		  console.warn('⚠️ No products found for tag:', tag);
-		  break;
-		}
-
-        for (const edge of products.edges) {
-          const product = edge.node;
-          const variants = product.variants.edges.map(v => {
-            const sizeOption = v.node.selectedOptions.find(opt => opt.name.toLowerCase() === 'size');
-            return {
-              id: product.id,
-              title: product.title,
-              vendor: product.vendor,
-              variant_id: v.node.id,
-              price: v.node.price,
-              compare_at_price: v.node.compareAtPrice,
-              sku: v.node.sku,
-              quantity: v.node.inventoryQuantity,
-              size: sizeOption?.value || '-',
-            };
-          });
-          allVariants.push(...variants);
-        }
-
-        hasNextPage = products.pageInfo.hasNextPage;
-        cursor = hasNextPage ? products.edges[products.edges.length - 1].cursor : null;
-      }
-
-    } else {
-      console.log('🟡 Preview by collection:', collectionId);
-
-      while (hasNextPage) {
-        const collectionQuery = `
-          {
-            collection(id: "${collectionId}") {
-              products(first: 100${cursor ? `, after: "${cursor}"` : ''}) {
-                pageInfo {
-                  hasNextPage
-                }
-                edges {
-                  cursor
-                  node {
-                    id
-                    title
-                    vendor
-                    variants(first: 10) {
-                      edges {
-                        node {
-                          id
-                          price
-                          compareAtPrice
-                          sku
-                          inventoryQuantity
-                          selectedOptions {
-                            name
-                            value
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-
-		const response = await shopifyGraphQL({ query: collectionQuery });
-		// console.log('📦 FULL collection GraphQL response:', JSON.stringify(response, null, 2));
-		const products = response?.collection?.products;
-
-		if (!products?.edges) throw new Error('No products returned in collection');
-
-
-        for (const edge of products.edges) {
-          const product = edge.node;
-          const variants = product.variants.edges.map(v => {
-            const sizeOption = v.node.selectedOptions.find(opt => opt.name.toLowerCase() === 'size');
-            return {
-              id: product.id,
-              title: product.title,
-              vendor: product.vendor,
-              variant_id: v.node.id,
-              price: v.node.price,
-              compare_at_price: v.node.compareAtPrice,
-              sku: v.node.sku,
-              quantity: v.node.inventoryQuantity,
-              size: sizeOption?.value || '-',
-            };
-          });
-
-          allVariants.push(...variants);
-        }
-
-        hasNextPage = products.pageInfo.hasNextPage;
-        cursor = hasNextPage ? products.edges[products.edges.length - 1].cursor : null;
-      }
-    }
-
-    res.json(allVariants);
+    const variants = await fetchPreview({
+      tag: req.query.tag,
+      collectionId: req.query.collectionId
+    });
+    res.json(variants);
   } catch (err) {
-    console.error('❌ Failed to fetch preview:', err.response?.data || err.message || err);
+    console.error('❌ Preview error:', err.message);
     res.status(500).json({ error: 'Preview fetch failed' });
   }
 });
+
 
 // -------------------------
 // 🔹 Simulate price logic
@@ -314,8 +168,7 @@ app.post('/simulate', async (req, res) => {
 
     //const response = await axios.get('http://localhost:3001/preview', { params });
     //const variants = response.data;
-      const result = await fetchPreview(params); // assuming fetchPreview is your logic
-      return res.json(result);
+     const variants = await fetchPreview(params);
 
     const simulated = simulatePriceChanges(variants, ruleType, discountValue);
     res.json(simulated);
@@ -338,8 +191,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
     : {};
 
   try {
-    const res = await axios.get('http://localhost:3001/preview', { params });
-    const variants = res.data;
+    const variants = await fetchPreview(params);
 
     console.log(`📦 Variants found: ${variants.length}`);
     if (variants.length === 0) {
@@ -654,8 +506,7 @@ async function revertPriceLogic({ filterType, filterValue, title, startDate, end
     ? { collectionId: filterValue }
     : {};
 
-  const res = await axios.get('http://localhost:3001/preview', { params });
-  const variants = res.data;
+  const variants = await fetchPreview(params);
 
   const changes = [];
 
