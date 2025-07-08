@@ -73,8 +73,8 @@ app.get('/tags', async (req, res) => {
       cursor = hasNextPage ? edges[edges.length - 1].cursor : null;
     }
 
-    const uniqueTags = [...new Set(allTags.filter(Boolean))];
-    res.json(uniqueTags);
+   const uniqueTags = [...new Set(allTags.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+   res.json(uniqueTags);
   } catch (err) {
     console.error("❌ Failed to fetch tags:", err.message);
     res.status(500).json({ error: "Failed to fetch tags" });
@@ -129,7 +129,9 @@ app.get('/collections', async (req, res) => {
       cursor = hasNextPage ? collections.edges[collections.edges.length - 1].cursor : null;
     }
 
+    allCollections.sort((a, b) => a.title.localeCompare(b.title));
     res.json(allCollections);
+
   } catch (err) {
     console.error('❌ Failed to fetch collections:', err.message);
     res.status(500).json({ error: 'Failed to fetch collections' });
@@ -441,11 +443,12 @@ function scheduleJob({ jobType, runAt, filterType, filterValue, ruleType, discou
         const updatedChanges = await applyPriceLogic({ filterType, filterValue, ruleType, discountValue });
 
         const emailHtml = generateEmailBodyFromChanges(updatedChanges, {
-          title,
-          status: 'applied',
-          startDate,
-          endDate,
-          appliedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Brunei" }),
+           title,
+           status: 'applied',
+           startDate: null,
+           endDate: null,
+           appliedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Brunei" }),
+           revertedAt: null
         });
 
         await sendEmail({
