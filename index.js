@@ -259,6 +259,8 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
           }
           break;
 
+          console.log("🧪 Received ruleType:", ruleType);
+
         default:
           console.warn(`❌ Unknown ruleType: ${ruleType}`);
       }
