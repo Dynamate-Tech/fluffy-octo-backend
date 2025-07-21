@@ -27,6 +27,16 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
         newPrice = base.toFixed(2);
         break;
 
+      case 'copy_to_base':
+        if (compare) {
+           newPrice = compare.toFixed(2);
+           explanation = '💸 Base price copied from Compare-at price.'; 
+         } else {
+           newPrice = base.toFixed(2); // fallback if compare price is missing
+           explanation = '⚠️ No compare-at price, skipped.';
+         }
+        break;
+        
       case 'compare_percentage':
         if (compare && !isNaN(compare)) {
           newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
