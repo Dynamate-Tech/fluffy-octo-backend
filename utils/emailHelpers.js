@@ -13,17 +13,17 @@ export async function sendEmail({ to, subject, html }) {
 
   try {
     await transporter.sendMail({
-    from: \`"Promo Price App" <${process.env.EMAIL_USER}>\`,
+    from: '"Promo Price App" <' + process.env.EMAIL_USER + '>',
     to,
     subject,
     html,
   });
-  console.log(\`✅ Email sent to ${to} with subject "${subject}"\`);
+  console.log("✅ Email sent to " + to + " with subject \"" + subject + "\"");
   } catch (error) {
     console.error("Nodemailer Error:", error.message);
     // Log the full error object for detailed debugging
     // console.error("Nodemailer Full Error:", error); 
-    throw new Error(\`Failed to send email: \${error.message}\`);
+    throw new Error("Failed to send email: " + error.message);
   }}
 
 
