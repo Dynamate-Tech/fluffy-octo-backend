@@ -206,6 +206,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
       const base = parseFloat(variant.price);
       const compare = parseFloat(variant.compare_at_price);
       const variantId = variant.variant_id;
+      const productId = variant.product_id; // Assuming fetchPreview returns product_id, if not, this will need to be fetched.
 
       let newPrice = null;
       let newCompareAtPrice = null;
@@ -267,6 +268,10 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
 
       if (newPrice || newCompareAtPrice) {
         try {
+// NOTE: We are now using the bulk update approach for efficiency
+          // We will collect all updates and perform a single bulk update per product at the end of the loop.
+          // For now, we will use the single variant wrapper to maintain the existing logic flow.
+          // For optimal performance, the logic should be refactored to collect all updates and call updateMultipleVariantPrices once.
           await updateVariantPrice(variantId, {
             price: newPrice,
             compareAtPrice: newCompareAtPrice,
@@ -321,7 +326,34 @@ app.post('/apply-now', async (req, res) => {
   }
 });
 
-// Update Variant Price
+// -------------------------
+// 🔹 Get Product ID from Variant ID (Helper function)
+// -------------------------
+async function getProductIdFromVariant(variantId) {
+  const query = `
+    query getProductFromVariant($id: ID!) {
+      productVariant(id: $id) {
+        id
+        product {
+          id
+        }
+      }
+    }
+  `;
+
+  const variables = { id: variantId };
+  const response = await shopifyGraphQL({ query, variables });
+  
+  if (!response?.productVariant?.product?.id) {
+    throw new Error(\`Product ID not found for variant: \${variantId}\`);
+  }
+
+  return response.productVariant.product.id;
+}
+
+// -------------------------
+// 🔹 Update Multiple Variant Prices (Core Function)
+// -------------------------
 export async function updateMultipleVariantPrices(productId, variants) {
   const mutation = `
     mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
@@ -329,7 +361,7 @@ export async function updateMultipleVariantPrices(productId, variants) {
         product {
           id
         }
-        productVariant {
+        productVariants {
           id
           price
           compareAtPrice
@@ -346,29 +378,47 @@ export async function updateMultipleVariantPrices(productId, variants) {
     productId: productId,
     variants: variants.map(v => ({
       id: v.id,
-      price: v.price,
-      compareAtPrice: v.compareAtPrice || null
+      price: v.price?.toString(), // Ensure price is a string
+      compareAtPrice: v.compareAtPrice?.toString() || null
     }))
   };
   
-  //const input = {
-    //id: variantId,
-    //price: price?.toString(),
-    //compareAtPrice: compareAtPrice?.toString(),
-  //};
+  console.log(\`📤 Sending bulk update for product: \${productId} (\${variants.length} variants)\`);
 
-  console.log("📤 Sending update for variant:", variants);
-  console.log("📦 Payload:", variables);
+  const response = await shopifyGraphQL({ query: mutation, variables });
 
-  const response = await shopifyGraphQL(mutation, variables);
-  //const response = await shopifyGraphQL({ query: mutation, variables: { input } });
+  const bulkUpdateResponse = response.productVariantsBulkUpdate;
 
-  if (response.productVariantUpdate?.userErrors?.length) {
-    console.error("❌ Shopify mutation userErrors:", response.productVariantUpdate.userErrors);
-    throw new Error(response.productVariantUpdate.userErrors.map(e => e.message).join(', '));
+  if (bulkUpdateResponse?.userErrors?.length) {
+    console.error("❌ Shopify mutation userErrors:", bulkUpdateResponse.userErrors);
+    throw new Error(bulkUpdateResponse.userErrors.map(e => e.message).join(', '));
   }
 
-  console.log("✅ Mutation success for:", variantId);
+  console.log(\`✅ Mutation success for product: \${productId}. Updated \${bulkUpdateResponse.productVariants.length} variants.\`);
+  return bulkUpdateResponse.productVariants;
+}
+
+// -------------------------
+// 🔹 Update Variant Price (Single Variant Wrapper)
+// -------------------------
+async function updateVariantPrice(variantId, { price, compareAtPrice }) {
+  // NOTE: This function is now a wrapper that fetches the product ID and calls the bulk update.
+  // It is kept for compatibility with the existing code structure.
+  const productId = await getProductIdFromVariant(variantId);
+  
+  const variants = [{
+    id: variantId,
+    price: price,
+    compareAtPrice: compareAtPrice
+  }];
+
+  const updatedVariants = await updateMultipleVariantPrices(productId, variants);
+  
+  if (updatedVariants.length === 0) {
+    throw new Error(\`Failed to update variant: \${variantId} (No variant returned)\`);
+  }
+  
+  return updatedVariants[0];
 }
 
 // -------------------------
@@ -543,8 +593,13 @@ async function revertPriceLogic({ filterType, filterValue, title, startDate, end
     const compare = parseFloat(variant.compare_at_price);
 
     if (compare && !isNaN(compare)) {
+// NOTE: The single update call is replaced by a bulk update for the entire product
+      // This requires a refactor to collect all updates and perform a single bulk update per product.
+      // For simplicity and to maintain the existing logic flow, we will use the single variant wrapper.
+      // For optimal performance, the logic should be refactored to collect all updates and call updateMultipleVariantPrices once.
       await updateVariantPrice(variant.variant_id, {
         price: compare.toFixed(2),
+        compareAtPrice: null, // Clear compareAtPrice after reverting base price
       });
 
       changes.push({
@@ -556,9 +611,9 @@ async function revertPriceLogic({ filterType, filterValue, title, startDate, end
           price: base,
           compareAtPrice: compare,
         },
-        to: {
+to: {
           price: compare.toFixed(2),
-          compareAtPrice: compare,
+          compareAtPrice: null, // Clear compareAtPrice after reverting base price
         },
         explanation: '♻️ Reverted base price to match compare-at',
       });
