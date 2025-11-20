@@ -16,7 +16,7 @@ export async function shopifyGraphQL({ query, variables = {} }) {
 
   try {
     const response = await fetch(
-      `https://${SHOP}/admin/api/2024-04/graphql.json`,
+      `https://${SHOP}/admin/api/2025-10/graphql.json`,
       {
         method: 'POST',
         headers: {
