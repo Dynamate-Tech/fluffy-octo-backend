@@ -267,7 +267,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
 
       if (newPrice || newCompareAtPrice) {
         try {
-          await updateVariantPriceById(variantId, {
+          await updateVariantPrice(variantId, {
             price: newPrice,
             compareAtPrice: newCompareAtPrice,
           });
@@ -322,10 +322,13 @@ app.post('/apply-now', async (req, res) => {
 });
 
 // Update Variant Price
-export async function updateVariantPriceById(variantId, { price, compareAtPrice }) {
+export async function updateMultipleVariantPrices(productId, variants) {
   const mutation = `
-    mutation variantUpdate($input: ProductVariantInput!) {
-      productVariantUpdate(input: $input) {
+    mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+        product {
+          id
+        }
         productVariant {
           id
           price
@@ -339,16 +342,26 @@ export async function updateVariantPriceById(variantId, { price, compareAtPrice 
     }
   `;
 
-  const input = {
-    id: variantId,
-    price: price?.toString(),
-    compareAtPrice: compareAtPrice?.toString(),
+  const variables = {
+    productId: productId,
+    variants: variants.map(v => ({
+      id: v.id,
+      price: v.price,
+      compareAtPrice: v.compareAtPrice || null
+    }))
   };
+  
+  //const input = {
+    //id: variantId,
+    //price: price?.toString(),
+    //compareAtPrice: compareAtPrice?.toString(),
+  //};
 
-  console.log("📤 Sending update for variant:", variantId);
-  console.log("📦 Payload:", input);
+  console.log("📤 Sending update for variant:", variants);
+  console.log("📦 Payload:", variables);
 
-  const response = await shopifyGraphQL({ query: mutation, variables: { input } });
+  const response = await shopifyGraphQL(mutation, variables);
+  //const response = await shopifyGraphQL({ query: mutation, variables: { input } });
 
   if (response.productVariantUpdate?.userErrors?.length) {
     console.error("❌ Shopify mutation userErrors:", response.productVariantUpdate.userErrors);
@@ -530,7 +543,7 @@ async function revertPriceLogic({ filterType, filterValue, title, startDate, end
     const compare = parseFloat(variant.compare_at_price);
 
     if (compare && !isNaN(compare)) {
-      await updateVariantPriceById(variant.variant_id, {
+      await updateVariantPrice(variant.variant_id, {
         price: compare.toFixed(2),
       });
 
