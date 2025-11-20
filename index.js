@@ -435,7 +435,15 @@ app.post('/apply-schedule', async (req, res) => {
       updatedChanges = await applyPriceLogic({ filterType, filterValue, ruleType, discountValue });
 
       // ✉️ Send email with result summary table
-      const emailHtml = generateEmailBodyFromChanges(updatedChanges);
+      const batchInfo = {
+        title,
+        status: 'applied',
+        startDate,
+        endDate,
+        appliedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Brunei" }),
+        revertedAt: null
+      };
+      const emailHtml = generateEmailBodyFromChanges(updatedChanges, batchInfo);
 
       console.log("📨 Preparing to send email...");
       console.log("📧 Email recipient:", 'it_support@dynamicsports.co');
