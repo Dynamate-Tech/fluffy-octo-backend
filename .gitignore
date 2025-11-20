@@ -1,0 +1,21 @@
+# ---------------------------------------------------
+# 1. Sensitive Files (CRITICAL: Keeps API keys private)
+# ---------------------------------------------------
+.env
+.env.local
+.env.*.local
+
+# ---------------------------------------------------
+# 2. Dependencies (Keeps the repository small)
+# ---------------------------------------------------
+/node_modules
+
+# ---------------------------------------------------
+# 3. Build Artifacts and Logs (Generated files)
+# ---------------------------------------------------
+/dist
+/build
+/logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
