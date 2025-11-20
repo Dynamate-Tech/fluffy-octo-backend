@@ -267,7 +267,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
 
       if (newPrice || newCompareAtPrice) {
         try {
-          await updateVariantPrice(variantId, {
+          await updateVariantPriceById(variantId, {
             price: newPrice,
             compareAtPrice: newCompareAtPrice,
           });
@@ -322,7 +322,7 @@ app.post('/apply-now', async (req, res) => {
 });
 
 // Update Variant Price
-export async function updateVariantPrice(variantId, { price, compareAtPrice }) {
+export async function updateVariantPriceById(variantId, { price, compareAtPrice }) {
   const mutation = `
     mutation variantUpdate($input: ProductVariantInput!) {
       productVariantUpdate(input: $input) {
@@ -530,7 +530,7 @@ async function revertPriceLogic({ filterType, filterValue, title, startDate, end
     const compare = parseFloat(variant.compare_at_price);
 
     if (compare && !isNaN(compare)) {
-      await updateVariantPrice(variant.variant_id, {
+      await updateVariantPriceById(variant.variant_id, {
         price: compare.toFixed(2),
       });
 
