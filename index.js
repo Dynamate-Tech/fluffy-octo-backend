@@ -343,11 +343,9 @@ async function getProductIdFromVariant(variantId) {
 
   const variables = { id: variantId };
   const response = await shopifyGraphQL({ query, variables });
-
-  // 💡 ADD THIS LINE:
-console.log("DEBUG: GraphQL Response for variant ID lookup:", JSON.stringify(response, null, 2));
+  
   if (!response?.productVariant?.product?.id) {
-    throw new Error(\`Product ID not found for variant: \${variantId}\`);
+    throw new Error("Product ID not found for variant: " + variantId);
   }
 
   return response.productVariant.product.id;
@@ -385,7 +383,7 @@ export async function updateMultipleVariantPrices(productId, variants) {
     }))
   };
   
-  console.log(\`📤 Sending bulk update for product: \${productId} (\${variants.length} variants)\`);
+  console.log("📤 Sending bulk update for product: " + productId + " (" + variants.length + " variants)");
 
   const response = await shopifyGraphQL({ query: mutation, variables });
 
@@ -396,7 +394,7 @@ export async function updateMultipleVariantPrices(productId, variants) {
     throw new Error(bulkUpdateResponse.userErrors.map(e => e.message).join(', '));
   }
 
-  console.log(\`✅ Mutation success for product: \${productId}. Updated \${bulkUpdateResponse.productVariants.length} variants.\`);
+  console.log("✅ Mutation success for product: " + productId + ". Updated " + bulkUpdateResponse.productVariants.length + " variants.");
   return bulkUpdateResponse.productVariants;
 }
 
@@ -417,7 +415,7 @@ async function updateVariantPrice(variantId, { price, compareAtPrice }) {
   const updatedVariants = await updateMultipleVariantPrices(productId, variants);
   
   if (updatedVariants.length === 0) {
-    throw new Error(\`Failed to update variant: \${variantId} (No variant returned)\`);
+    throw new Error("Failed to update variant: " + variantId + " (No variant returned)");
   }
   
   return updatedVariants[0];
