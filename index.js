@@ -343,7 +343,9 @@ async function getProductIdFromVariant(variantId) {
 
   const variables = { id: variantId };
   const response = await shopifyGraphQL({ query, variables });
-  
+
+  // 💡 ADD THIS LINE:
+console.log("DEBUG: GraphQL Response for variant ID lookup:", JSON.stringify(response, null, 2));
   if (!response?.productVariant?.product?.id) {
     throw new Error(\`Product ID not found for variant: \${variantId}\`);
   }
