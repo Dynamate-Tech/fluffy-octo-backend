@@ -12,6 +12,7 @@ export async function sendEmail({ to, subject, html }) {
       pass: process.env.EMAIL_PASS
     }
   });
+
   try {
     await transporter.sendMail({
     from: '"Promo Price App" <' + process.env.EMAIL_USER + '>',
@@ -23,10 +24,11 @@ export async function sendEmail({ to, subject, html }) {
   } catch (error) {
     console.error("Nodemailer Error:", error.message);
     // Log the full error object for detailed debugging
-    // console.error("Nodemailer Full Error:", error); 
+    console.error("Nodemailer Full Error:", error); 
     throw new Error("Failed to send email: " + error.message);
-  }
-}
+  }}
+
+
 
 export function generateEmailBodyFromChanges(changes = [], batchInfo = {}) {
   const { title = '', status = '', startDate = '', endDate = '', appliedAt = '', revertedAt = '' } = batchInfo;
