@@ -446,12 +446,12 @@ app.post('/apply-schedule', async (req, res) => {
       const emailHtml = generateEmailBodyFromChanges(updatedChanges, batchInfo);
 
       console.log("📨 Preparing to send email...");
-      console.log("📧 Email recipient:", 'it_support@dynamicsports.co');
+      console.log("📧 Email recipient:", 'dynamate.promo@gmail.com');
       console.log("📨 Email HTML preview:", emailHtml?.slice(0, 500)); // just part of it
 
       try {
         await sendEmail({
-          to: 'it_support@dynamicsports.co',
+          to: 'dynamate.promo@gmail.com',
           subject: `[Promo Price] ${title}`,
           html: emailHtml,
         });
@@ -535,7 +535,7 @@ function scheduleJob({ jobType, runAt, filterType, filterValue, ruleType, discou
         });
 
         await sendEmail({
-          to: 'it_support@dynamicsports.co',
+          to: 'dynamate.promo@gmail.com',
           subject: `[Promo Price] ${title}`,
           html: emailHtml,
         });
@@ -638,7 +638,7 @@ to: {
     revertedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Brunei" }), // only when reverting
   });
   await sendEmail({
-    to: 'it_support@dynamicsports.co',
+    to: 'dynamate.promo@gmail.com',
    subject: `[Promo Price Revert] ${title}`,
    html: emailHtml,
   });
