@@ -4,7 +4,9 @@ import nodemailer from 'nodemailer';
 
 export async function sendEmail({ to, subject, html }) {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use 587 for secure: false (TLS)
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
@@ -24,9 +26,8 @@ export async function sendEmail({ to, subject, html }) {
     // Log the full error object for detailed debugging
     // console.error("Nodemailer Full Error:", error); 
     throw new Error("Failed to send email: " + error.message);
-  }}
-
-
+  }
+}
 
 export function generateEmailBodyFromChanges(changes = [], batchInfo = {}) {
   const { title = '', status = '', startDate = '', endDate = '', appliedAt = '', revertedAt = '' } = batchInfo;
