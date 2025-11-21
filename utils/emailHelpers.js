@@ -1,32 +1,31 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({ to, subject, html }) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use 465 for secure: true (SSL)
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-
   try {
-    await transporter.sendMail({
-    from: '"Promo Price App" <' + process.env.EMAIL_USER + '>',
-    to,
-    subject,
-    html,
-  });
-  console.log("✅ Email sent to " + to + " with subject \"" + subject + "\"");
-  } catch (error) {
-    console.error("Nodemailer Error:", error.message);
-    // Log the full error object for detailed debugging
-    console.error("Nodemailer Full Error:", error); 
-    throw new Error("Failed to send email: " + error.message);
-  }}
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || '"Promo Price App" <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error("Resend Error:", error);
+      throw new Error("Failed to send email: " + error.message);
+    }
+
+    console.log(`✅ Email sent to ${to} with subject "${subject}"`);
+    return data;
+
+  } catch (err) {
+    console.error("Resend Full Error:", err);
+    throw err;
+  }
+}
 
 
 
@@ -52,6 +51,7 @@ export function generateEmailBodyFromChanges(changes = [], batchInfo = {}) {
 
   return `
     <h2>${status === 'reverted' ? '♻️ Promo Price Reverted' : '🟢 Promo Price Applied'}</h2>
+
     <p><strong>Title:</strong> ${title}</p>
     <p><strong>Status:</strong> ${status}</p>
     <p><strong>Start:</strong> ${startDate || '-'}</p>
