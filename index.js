@@ -214,12 +214,14 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
 
       switch (ruleType) {
         case 'base_percentage':
-          newPrice = (base * (1 - discountValue / 100)).toFixed(2);
+          newPrice = (base * (1 - discountValue / 100)).toFixed(2);          
+          newCompareAtPrice = compare.toFixed(2);
           explanation = `💸 Base price reduced by ${discountValue}%`;
           break;
 
         case 'base_fixed':
           newPrice = parseFloat(discountValue).toFixed(2);
+          newCompareAtPRice = compare.toFixed(2);
           explanation = `💸 Base price set to fixed amount: ${newPrice}`;
           break;
 
@@ -245,6 +247,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
         case 'compare_percentage':
           if (compare && !isNaN(compare)) {
             newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
+            newCompareAtPrice = compare.toFixed(2);
             explanation = `💸 Base = Compare-at - ${discountValue}%`;
           } else {
             explanation = '⚠️ No compare-at price, skipped.';
@@ -254,6 +257,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
         case 'compare_fixed':
           if (compare && !isNaN(compare)) {
             newPrice = (compare - discountValue).toFixed(2);
+            newCompareAtPRice = compare.toFixed(2);
             explanation = `💸 Base = Compare-at - ${discountValue}`;
           } else {
             explanation = '⚠️ No compare-at price, skipped.';
