@@ -237,6 +237,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
         case 'copy_to_base':
            if (compare) {
              newPrice = compare.toFixed(2);
+             newCompareAtPrice = compare.toFixed(2);
              explanation = '💸 Base price copied from Compare-at price.'; 
            } else {
              newPrice = base.toFixed(2); // fallback if compare price is missing
