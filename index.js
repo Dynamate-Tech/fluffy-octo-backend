@@ -257,7 +257,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
         case 'compare_fixed':
           if (compare && !isNaN(compare)) {
             newPrice = (compare - discountValue).toFixed(2);
-            newCompareAtPRice = compare.toFixed(2);
+            newCompareAtPrice = compare.toFixed(2);
             explanation = `💸 Base = Compare-at - ${discountValue}`;
           } else {
             explanation = '⚠️ No compare-at price, skipped.';
