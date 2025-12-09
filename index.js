@@ -221,7 +221,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
 
         case 'base_fixed':
           newPrice = parseFloat(discountValue).toFixed(2);
-          newCompareAtPRice = compare.toFixed(2);
+          newCompareAtPrice = compare.toFixed(2);
           explanation = `💸 Base price set to fixed amount: ${newPrice}`;
           break;
 
