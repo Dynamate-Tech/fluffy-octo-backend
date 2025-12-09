@@ -246,24 +246,36 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
            break;
           
         case 'compare_percentage':
-          if (compare && !isNaN(compare)) {
-            newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            newCompareAtPrice = compare.toFixed(2);
-            explanation = `💸 Base = Compare-at - ${discountValue}%`;
+        // Check if the base price is the SAME as the compare price (not discounted yet)
+          if (compare == base) { 
+            if (compare && !isNaN(compare)) {
+              newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
+              newCompareAtPrice = compare.toFixed(2);
+              explanation = `💸 Base = Compare-at - ${discountValue}%`;
+            } else {
+              explanation = '⚠️ No compare-at price, skipped.';
+            }
           } else {
-            explanation = '⚠️ No compare-at price, skipped.';
+          // If compare and base are different, it means it's already discounted
+            explanation = '⚠️ Product already discounted, skipped.';
           }
-          break;
+        break;
 
         case 'compare_fixed':
-          if (compare && !isNaN(compare)) {
-            newPrice = (compare - discountValue).toFixed(2);
-            newCompareAtPrice = compare.toFixed(2);
-            explanation = `💸 Base = Compare-at - ${discountValue}`;
+          // Check if the base price is the SAME as the compare price (not discounted yet)
+          if (compare == base) { 
+            if (compare && !isNaN(compare)) {
+              newPrice = (compare - discountValue).toFixed(2);
+              newCompareAtPrice = compare.toFixed(2);
+              explanation = `💸 Base = Compare-at - ${discountValue}`;
+            } else {
+              explanation = '⚠️ No compare-at price, skipped.';
+            }
           } else {
-            explanation = '⚠️ No compare-at price, skipped.';
+          // If compare and base are different, it means it's already discounted
+            explanation = '⚠️ Product already discounted, skipped.';
           }
-          break;
+            break;
 
           console.log("🧪 Received ruleType:", ruleType);
 
