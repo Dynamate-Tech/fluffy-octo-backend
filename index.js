@@ -217,13 +217,13 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
           newPrice = (base * (1 - discountValue / 100)).toFixed(2);          
           newCompareAtPrice = compare.toFixed(2);
           explanation = `💸 Base price reduced by ${discountValue}%`;
-          break;
+        break;
 
         case 'base_fixed':
           newPrice = parseFloat(discountValue).toFixed(2);
           newCompareAtPrice = compare.toFixed(2);
           explanation = `💸 Base price set to fixed amount: ${newPrice}`;
-          break;
+        break;
 
         case 'copy_to_compare':
           if (!compare || isNaN(compare)) {
@@ -232,18 +232,27 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
           } else {
             explanation = '⚠️ Compare-at already exists, skipped.';
           }
-          break;
+        break;
 
         case 'copy_to_base':
-           if (compare) {
-             newPrice = compare.toFixed(2);
-             newCompareAtPrice = compare.toFixed(2);
-             explanation = '💸 Base price copied from Compare-at price.'; 
-           } else {
-             newPrice = base.toFixed(2); // fallback if compare price is missing
-             explanation = '⚠️ No compare-at price, skipped.';
-           }
-           break;
+        // 1. Check if the base and compare prices are already the same.
+          if (base == compare) {
+            explanation = '⚠️ Base and Compare-at prices are already the same, skipped.';
+            // We don't need to change newPrice or newCompareAtPrice since they are already effectively set by 'base' and 'compare'.
+          } 
+        // 2. Check if a compare price exists to copy from.
+          else if (compare) {
+            // Only execute copy if they are different AND 'compare' exists.
+            newPrice = compare.toFixed(2);
+            newCompareAtPrice = compare.toFixed(2);
+            explanation = '💸 Base price copied from Compare-at price.'; 
+          } 
+        // 3. Fallback if 'compare' price is missing.
+          else {
+            newPrice = base.toFixed(2); // Retain existing base price
+            explanation = '⚠️ No compare-at price, skipped.';
+          }
+        break;
           
         case 'compare_percentage':
         // Check if the base price is the SAME as the compare price (not discounted yet)
@@ -275,7 +284,7 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
           // If compare and base are different, it means it's already discounted
             explanation = '⚠️ Product already discounted, skipped.';
           }
-            break;
+        break;
 
           console.log("🧪 Received ruleType:", ruleType);
 
