@@ -51,7 +51,6 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
          if (compare == base) { 
             if (compare && !isNaN(compare)) {
               newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-              newCompareAtPrice = compare.toFixed(2);
               explanation = `💸 Base = Compare-at - ${discountValue}%`;
             } else {
               newPrice = base.toFixed(2);
