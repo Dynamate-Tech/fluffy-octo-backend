@@ -270,20 +270,14 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
           }
         break;
 
-        case 'compare_fixed':
-          // Check if the base price is the SAME as the compare price (not discounted yet)
-          if (compare == base) { 
+        case 'compare_fixed':                   
             if (compare && !isNaN(compare)) {
               newPrice = (compare - discountValue).toFixed(2);
               newCompareAtPrice = compare.toFixed(2);
               explanation = `💸 Base = Compare-at - ${discountValue}`;
             } else {
               explanation = '⚠️ No compare-at price, skipped.';
-            }
-          } else {
-          // If compare and base are different, it means it's already discounted
-            explanation = '⚠️ Product already discounted, skipped.';
-          }
+            }          
         break;
 
           console.log("🧪 Received ruleType:", ruleType);
