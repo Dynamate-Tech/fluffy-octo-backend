@@ -62,7 +62,6 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
         if (currentDiscountPercentage < 30) {
             // The condition is met: Apply the new percentage discount to the compare price
             newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            newCompareAtPrice = compare.toFixed(2);
             explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) < 30%. Applied ${discountValue}% discount to Compare price.`;
         } else {
             // The product is already discounted by 30% or more
@@ -73,7 +72,6 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
         // Fallback for when compare == base (i.e., 0% discount, which is < 30%)
         if (compare && !isNaN(compare)) {
             newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            newCompareAtPrice = compare.toFixed(2);
             explanation = `✅ Base = Compare-at (0% discount). Applied ${discountValue}% discount.`;
         } else {
             explanation = '⚠️ No valid compare-at price, skipped.';
