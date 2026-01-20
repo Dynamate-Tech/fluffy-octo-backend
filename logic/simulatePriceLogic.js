@@ -71,8 +71,8 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
     } else if (compare == base) {
         // Fallback for when compare == base (i.e., 0% discount, which is < 30%)
         if (compare && !isNaN(compare)) {
-            newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            explanation = `✅ Base = Compare-at (0% discount). Applied ${discountValue}% discount.`;
+            newPrice = base.toFixed(2);
+            explanation = `✅ Base = Compare-at (0% discount), skipped.`;
         } else {
             explanation = '⚠️ No valid compare-at price, skipped.';
         }
