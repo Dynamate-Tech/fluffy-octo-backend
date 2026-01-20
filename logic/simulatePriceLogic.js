@@ -48,37 +48,32 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
         break;
         
       case 'compare_percentage':
-    // 1. Check if both prices are valid for calculation
     if (compare && base && !isNaN(compare) && !isNaN(base)) {
         
-        // Calculate the current discount percentage (if compare > base)
+        // 1. Calculate the current discount percentage
         let currentDiscountPercentage = 0;
         if (compare > base) {
-            // Formula: ((Original Price - Current Price) / Original Price) * 100
             currentDiscountPercentage = ((compare - base) / compare) * 100;
         }
 
-        // Check if the current discount is less than 30%
-        if (currentDiscountPercentage => 30) {
-            // The condition is met: Apply the new percentage discount to the compare price
-            newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) => 30%. Applied ${discountValue}% discount to Compare price.`;
+        // 2. Logic: Trigger ONLY if discount is exactly 30% 
+        // (Using Math.round to handle floating point math issues like 29.999)
+        if (Math.round(currentDiscountPercentage) === 30) {
+            
+            // Apply the new 20% discount (discountValue should be 20)
+            newPrice = (compare * (1 - 20 / 100)).toFixed(2);
+            explanation = `✅ Triggered: Changed 30% discount to 20%. New Price: ${newPrice}`;
+            
+        } else if (currentDiscountPercentage === 0) {
+            // Skip if no discount is applied
+            explanation = `⚠️ No discount applied (0%), skipped.`;
         } else {
-            // The product is already discounted by 30% or more
-            explanation = `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}% (>= 30%), skipped.`;
+            // Skip if discount is anything other than 30%
+            explanation = `⚠️ Current discount is ${currentDiscountPercentage.toFixed(2)}%, not 30%. Skipped.`;
         }
 
-    } else if (compare == base) {
-        // Fallback for when compare == base (i.e., 0% discount, which is < 30%)
-        if (compare && !isNaN(compare)) {
-            newPrice = base.toFixed(2);
-            explanation = `✅ Base = Compare-at (0% discount), skipped.`;
-        } else {
-            explanation = '⚠️ No valid compare-at price, skipped.';
-        }
     } else {
-        // Handle cases where prices are invalid or missing
-        explanation = '⚠️ Invalid or missing base/compare prices for calculation, skipped.';
+        explanation = '⚠️ Invalid or missing base/compare prices, skipped.';
     }
     break;
 
