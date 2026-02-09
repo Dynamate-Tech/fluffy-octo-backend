@@ -20,7 +20,7 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
       case 'copy_to_compare':
         if (!compare || isNaN(compare)) {
         // We update the actual 'compare' variable, not just a temporary one
-          compare = base.toFixed(2); 
+          newPrice = base.toFixed(2); 
           explanation = '📝 Compare-at was empty → Copied from base';
         } else {
           explanation = '✅ Compare-at already exists';
