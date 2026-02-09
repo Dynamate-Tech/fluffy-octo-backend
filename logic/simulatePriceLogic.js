@@ -23,7 +23,7 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
           newPrice = base.toFixed(2); 
           explanation = '📝 Compare-at was empty → Copied from base';
         } else {
-          explanation = '✅ Compare-at already exists';
+          explanation = '✅ Compare-at already exists, skipped';
         }
   
         // Base price stays the same
