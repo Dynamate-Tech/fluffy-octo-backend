@@ -59,20 +59,15 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
             currentDiscountPercentage = ((compare - base) / compare) * 100;
         }
 
-        // 2. Logic: Trigger ONLY if discount is exactly 30% 
-        // (Using Math.round to handle floating point math issues like 29.999)
-        if (Math.round(currentDiscountPercentage) === 30) {
+        // 2. Logic: If already have discount (> 0), then skip
+        if (currentDiscountPercentage > 0) {
+            explanation = `⚠️ Already has a ${currentDiscountPercentage.toFixed(2)}% discount, skipped.`;
             
-            // Apply the new 20% discount (discountValue should be 20)
-            newPrice = (compare * (1 - 20 / 100)).toFixed(2);
-            explanation = `✅ Triggered: Changed 30% discount to 20%. New Price: ${newPrice}`;
-            
-        } else if (currentDiscountPercentage === 0) {
-            // Skip if no discount is applied
-            explanation = `⚠️ No discount applied (0%), skipped.`;
         } else {
-            // Skip if discount is anything other than 30%
-            explanation = `⚠️ Current discount is ${currentDiscountPercentage.toFixed(2)}%, not 30%. Skipped.`;
+            // 3. Else (no discount), apply 10%
+            newPrice = (compare * 0.90).toFixed(2);
+            newCompareAtPrice = compare.toFixed(2);
+            explanation = `✅ No discount found. Applied 10% discount. New Price: ${newPrice}`;
         }
 
     } else {
