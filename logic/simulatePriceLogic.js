@@ -61,14 +61,14 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
             currentDiscountPercentage = ((compare - base) / compare) * 100;
           }
 
-          // Check if the current discount is less than 10%
-          if (currentDiscountPercentage <= 10) {
+          // Check if the current discount is less than 20%
+          if (currentDiscountPercentage <= 20) {
             // The condition is met: Apply the new percentage discount to the compare price
             newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-            explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) < 10%. Applied ${discountValue}% discount to Compare price.`;
+            explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) < 20%. Applied ${discountValue}% discount to Compare price.`;
           } else {
             // The product is already discounted by 30% or more
-            explanation = `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}% (>= 10%), skipped.`;
+            explanation = `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}% (>= 20%), skipped.`;
           }
 
         } else if (compare == base) {
