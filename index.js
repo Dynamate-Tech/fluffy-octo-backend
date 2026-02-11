@@ -266,11 +266,11 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
             }
 
             // Check if the current discount is less than 20%
-            if (currentDiscountPercentage < 20) {
+            if (currentDiscountPercentage <= 20) {
                 // The condition is met: Apply the new percentage discount to the compare price
                 newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
                 newCompareAtPrice = compare.toFixed(2);
-                explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) < 20%. Applied ${discountValue}% discount to Compare price.`;
+                explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%) <= 20%. Applied ${discountValue}% discount to Compare price.`;
             } else {
                 // The product is already discounted by 20% or less
                 explanation = `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}% (>= 20%), skipped.`;
