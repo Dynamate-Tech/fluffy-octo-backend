@@ -78,12 +78,11 @@ app.get("/auth/callback", async (req, res) => {
 
   const data = await response.json();
 
-  console.log("TOKEN RECEIVED:", data.access_token);
-
-  // 👉 STEP 7 happens here
+  // ✅ Save token
   saveToken(data.access_token);
 
-  res.send("App installed successfully!");
+  // ✅ Redirect back to frontend
+  res.redirect("https://dynamate-promo-front.onrender.com?connected=true");
 });
 
 
