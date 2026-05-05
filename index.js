@@ -12,7 +12,7 @@ import fs from 'fs';
 import path from 'path';
 import { sendEmail, generateEmailBodyFromChanges } from './utils/emailHelpers.js';
 import { fetchPreview } from './utils/fetchPreview.js';
-import { saveToken } from "./tokenStore.js";
+import { saveToken, getToken } from "./tokenStore.js";
 
 
 const app = express();
@@ -21,6 +21,23 @@ const scheduledJobs = [];
 const allowedOrigins = [
   'http://localhost:5173',
   'https://dynamate-promo-front.onrender.com'];
+
+//----------------------------
+// Token Status
+//----------------------------
+app.get("/status", (req, res) => {
+  const token = getToken();
+
+  if (!token) {
+    return res.json({
+      connected: false
+    });
+  }
+
+  return res.json({
+    connected: true
+  });
+});
 
 // ------------------------
 // Get Auth 
