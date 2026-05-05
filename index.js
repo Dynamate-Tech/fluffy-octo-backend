@@ -18,11 +18,10 @@ import { saveToken, getToken } from "./tokenStore.js";
 const app = express();
 const PORT = process.env.PORT || 3001;
 const scheduledJobs = [];
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://dynamate-promo-front.onrender.com'];
 
-app.use(cors());
+app.use(cors({
+  origin: "https://dynamate-promo-front.onrender.com"
+}));
 
 //----------------------------
 // Token Status
