@@ -5,7 +5,7 @@ dotenv.config();
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const SHOP = process.env.SHOP_DOMAIN;
-const ADMIN_API_ACCESS_TOKEN = process.env.SHOPIFY_API_KEY;
+const ADMIN_API_ACCESS_TOKEN = process.env.SHOPIFY_API_SECRET;
 
 export async function shopifyGraphQL({ query, variables = {} }) {
   // console.log('\n📤 [GraphQL QUERY] =====================');
