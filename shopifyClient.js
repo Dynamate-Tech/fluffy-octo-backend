@@ -1,13 +1,14 @@
 // shopifyClient.js
 import dotenv from 'dotenv';
 dotenv.config();
+import { getToken } from "./tokenStore.js";
 
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const SHOP = process.env.SHOP_DOMAIN;
-const ADMIN_API_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
 export async function shopifyGraphQL({ query, variables = {} }) {
+  const token = getToken();
   // console.log('\n📤 [GraphQL QUERY] =====================');
   // console.log(query);
   // if (Object.keys(variables).length) {
@@ -21,7 +22,7 @@ export async function shopifyGraphQL({ query, variables = {} }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': ADMIN_API_ACCESS_TOKEN,
+          'X-Shopify-Access-Token': token,
         },
         body: JSON.stringify({ query, variables }),
       }
