@@ -21,6 +21,54 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://dynamate-promo-front.onrender.com'];
 
+// ------------------------
+// Get Auth 
+//-------------------------
+app.get("/auth", (req, res) => {
+  const shop = req.query.shop;
+
+  const installUrl =
+    `https://${shop}/admin/oauth/authorize` +
+    `?client_id=${process.env.SHOPIFY_API_KEY}` +
+    `&scope=${process.env.SHOPIFY_SCOPES}` +
+    `&redirect_uri=${process.env.SHOPIFY_REDIRECT_URI}`;
+
+  res.redirect(installUrl);
+});
+
+//-------------------------------------
+// Auth Callback (Access Token)
+//-------------------------------------
+app.get("/auth/callback", async (req, res) => {
+  const { shop, code } = req.query;
+
+  const response = await fetch(
+    `https://${shop}/admin/oauth/access_token`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: process.env.SHOPIFY_API_KEY,
+        client_secret: process.env.SHOPIFY_API_SECRET,
+        code,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  console.log("TOKEN RECEIVED:", data.access_token);
+
+  // 👉 STEP 7 happens here
+  saveToken(data.access_token);
+
+  res.send("App installed successfully!");
+});
+
+
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
