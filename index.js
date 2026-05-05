@@ -86,19 +86,18 @@ app.get("/auth/callback", async (req, res) => {
 });
 
 
-
 app.use(cors({
   origin: function (origin, callback) {
+    console.log("Incoming origin:", origin); // 👈 ADD THIS
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("Blocked by CORS:", origin); // 👈 ADD THIS
       callback(new Error('Not allowed by CORS'));
     }
   }
 }));
-//app.use(cors({ origin: 'http://localhost:5173' })); 
-app.use(bodyParser.json());
-app.use(express.json());
 
 
 // -------------------------
