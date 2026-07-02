@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const scheduledJobs = [];
 
-app.use)express.json());
+app.use(express.json());
 
 app.use(cors({
   origin: "https://dynamate-promo-front.onrender.com"
