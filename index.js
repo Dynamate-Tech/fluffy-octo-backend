@@ -22,7 +22,7 @@ const scheduledJobs = [];
 app.use(express.json());
 
 app.use(cors({
-  origin: "https://dynamate-promo-front.onrender.com"
+  origin: "https://dynamate-promo-front.onrender.com",
   credentials: true
 }));
 
