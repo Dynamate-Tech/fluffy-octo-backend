@@ -442,6 +442,53 @@ switch (ruleType) {
 
 }
 
+       if (newPrice || newCompareAtPrice) {
+        try {
+// NOTE: We are now using the bulk update approach for efficiency
+          // We will collect all updates and perform a single bulk update per product at the end of the loop.
+          // For now, we will use the single variant wrapper to maintain the existing logic flow.
+          // For optimal performance, the logic should be refactored to collect all updates and call updateMultipleVariantPrices once.
+          await updateVariantPrice(variantId, {
+            price: newPrice,
+            compareAtPrice: newCompareAtPrice,
+          });
+
+          const logEntry = {
+            id: variantId,
+            vendor: variant.vendor,
+            title: variant.title,
+            sku: variant.sku,
+            from: {
+              price: base,
+              compareAtPrice: compare,
+            },
+            to: {
+              price: newPrice || base,
+              compareAtPrice: newCompareAtPrice || compare,
+            },
+            explanation,
+          };
+
+          priceChangeLog.push(logEntry);
+
+          console.log(`✅ Updated ${variantId}:`, logEntry);
+        } catch (err) {
+          console.error(`❌ Failed to update variant ${variantId}:`, err.message || err);
+        }
+      } else {
+        console.log(`⏭️ No change needed for variant ${variantId}: ${explanation}`);
+      }
+    }
+
+    console.log('🎉 Finished applying price rules!');
+
+    return priceChangeLog;
+  } catch (err) {
+    console.error('❌ applyPriceLogic failed:', err.message || err);
+    return [];
+  }
+}
+
 
 // 🔹 Apply now
 app.post('/apply-now', async (req, res) => {
