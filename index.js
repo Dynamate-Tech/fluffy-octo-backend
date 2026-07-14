@@ -309,29 +309,35 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
         break;
           
        case 'compare_percentage':
-    if (compare && base && !isNaN(compare) && !isNaN(base)) {
+          // Validate prices
+          if (
+              compare != null &&
+              compare > 0 &&
+              base != null &&
+              !isNaN(compare) &&
+              !isNaN(base)
+          ) {
 
-        // Current discount %
-        const currentDiscountPercentage =
-            compare > base
-                ? ((compare - base) / compare) * 100
-                : 0;
+          // Skip if product is already discounted
+          if (compare > base) {
 
-        // Skip if already discounted more than 20%
-        if (currentDiscountPercentage > 20) {
-            explanation = `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}% (>20%), skipped.`;
+            const currentDiscountPercentage =
+                ((compare - base) / compare) * 100;
+
+            explanation = `⚠️ Product is already discounted by ${currentDiscountPercentage.toFixed(2)}%, skipped.`;
             break;
+          }
+
+          // No existing discount, apply promotion
+          newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
+          newCompareAtPrice = compare.toFixed(2);
+
+          explanation = `✅ No existing discount. Applied ${discountValue}% discount to Compare-at Price.`;
+
+        } else {
+          explanation = '⚠️ Invalid, missing, or zero Compare-at Price. Skipped.';
         }
-
-        // Apply new discount
-        newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-        newCompareAtPrice = compare.toFixed(2);
-        explanation = `✅ Current discount (${currentDiscountPercentage.toFixed(2)}%). Applied ${discountValue}% discount to Compare price.`;
-
-    } else {
-        explanation = '⚠️ Invalid or missing base/compare prices, skipped.';
-    }
-    break;
+        break;
 
         case 'compare_fixed':                   
             if (compare && !isNaN(compare)) {
