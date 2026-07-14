@@ -2,7 +2,7 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
   return variants.map((variant) => {
     const base = parseFloat(variant.price);
     const compare = parseFloat(variant.compare_at_price);
-    let newPrice = null;
+    let newPrice = !isNaN(base) ? base.toFixed(2) : null;
     let explanation = '';
     let keepCompare = compare;
 
@@ -52,34 +52,36 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
         
 
         case 'compare_percentage':
-          // Validate prices
-          if (
-              compare != null &&
-              compare > 0 &&
-              base != null &&
-              !isNaN(compare) &&
-              !isNaN(base)
-          ) {
+    // Validate prices
+    if (
+        compare != null &&
+        compare > 0 &&
+        base != null &&
+        !isNaN(compare) &&
+        !isNaN(base)
+    ) {
 
-          // Skip if product is already discounted
-          if (compare > base) {
+        // Skip if product is already discounted
+        if (compare > base) {
 
             const currentDiscountPercentage =
                 ((compare - base) / compare) * 100;
 
             explanation = `⚠️ Product is already discounted by ${currentDiscountPercentage.toFixed(2)}%, skipped.`;
             break;
-          }
-
-            // No existing discount, apply promotion
-            newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-
-            explanation = `✅ No existing discount. Applied ${discountValue}% discount to Compare-at Price.`;
-
-        } else {
-            explanation = '⚠️ Invalid, missing, or zero Compare-at Price. Skipped.';
         }
-        break;
+
+        // No existing discount → Apply promotion
+        newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
+
+        explanation = `✅ No existing discount. Applied ${discountValue}% discount to Compare-at Price.`;
+
+    } else {
+
+        explanation = '⚠️ Invalid, missing, or zero Compare-at Price. Skipped.';
+
+    }
+    break;
 
       case 'compare_fixed':
         // Check if the base price is the SAME as the compare price (not discounted yet)
@@ -88,12 +90,12 @@ export function simulatePriceChanges(variants, ruleType, discountValue) {
               newPrice = (compare - discountValue).toFixed(2);
               explanation = `💸 Base = Compare-at - ${discountValue}`;
             } else {
-              newPrice = base.toFixed(2);
+              
               explanation = '⚠️ No compare-at price, skipped.';
             }
           } else {
           // If compare and base are different, it means it's already discounted
-            newPrice = base.toFixed(2);
+
             explanation = '⚠️ Product already discounted, skipped.';
           }
         break;
