@@ -266,140 +266,180 @@ async function applyPriceLogic({ filterType, filterValue, ruleType, discountValu
       let newCompareAtPrice = null;
       let explanation = '';
 
-      switch (ruleType) {
-        case 'base_percentage':
-          newPrice = (base * (1 - discountValue / 100)).toFixed(2);          
-          newCompareAtPrice = compare.toFixed(2);
-          explanation = `💸 Base price reduced by ${discountValue}%`;
-        break;
+switch (ruleType) {
 
-        case 'base_fixed':
-          newPrice = parseFloat(discountValue).toFixed(2);
-          newCompareAtPrice = compare.toFixed(2);
-          explanation = `💸 Base price set to fixed amount: ${newPrice}`;
-        break;
+  case 'base_percentage':
 
-        case 'copy_to_compare':
-          if (!compare || isNaN(compare)) {
-            newCompareAtPrice = base.toFixed(2);
-            explanation = '📋 Compare-at was empty, copied from base price.';
-          } else {
-            explanation = '⚠️ Compare-at already exists, skipped.';
-          }
-        break;
+    newPrice = (base * (1 - discountValue / 100)).toFixed(2);
+    newCompareAtPrice = compare ? compare.toFixed(2) : null;
 
-        case 'copy_to_base':
-        // 1. Check if the base and compare prices are already the same.
-          if (base == compare) {
-            explanation = '⚠️ Base and Compare-at prices are already the same, skipped.';
-            // We don't need to change newPrice or newCompareAtPrice since they are already effectively set by 'base' and 'compare'.
-          } 
-        // 2. Check if a compare price exists to copy from.
-          else if (compare) {
-            // Only execute copy if they are different AND 'compare' exists.
-            newPrice = compare.toFixed(2);
-            newCompareAtPrice = compare.toFixed(2);
-            explanation = '💸 Base price copied from Compare-at price.'; 
-          } 
-        // 3. Fallback if 'compare' price is missing.
-          else {
-            newPrice = base.toFixed(2); // Retain existing base price
-            explanation = '⚠️ No compare-at price, skipped.';
-          }
-        break;
-          
-       case 'compare_percentage':
-          // Validate prices
-          if (
-              compare != null &&
-              compare > 0 &&
-              base != null &&
-              !isNaN(compare) &&
-              !isNaN(base)
-          ) {
+    explanation = `💸 Base price reduced by ${discountValue}%`;
 
-          // Skip if product is already discounted
-          if (compare > base) {
+    break;
 
-            const currentDiscountPercentage =
-                ((compare - base) / compare) * 100;
 
-            explanation = `⚠️ Product is already discounted by ${currentDiscountPercentage.toFixed(2)}%, skipped.`;
-            break;
-          }
+  case 'base_fixed':
 
-          // No existing discount, apply promotion
-          newPrice = (compare * (1 - discountValue / 100)).toFixed(2);
-          newCompareAtPrice = compare.toFixed(2);
+    newPrice = parseFloat(discountValue).toFixed(2);
+    newCompareAtPrice = compare ? compare.toFixed(2) : null;
 
-          explanation = `✅ No existing discount. Applied ${discountValue}% discount to Compare-at Price.`;
+    explanation = `💸 Base price set to fixed amount: ${newPrice}`;
 
-        } else {
-          explanation = '⚠️ Invalid, missing, or zero Compare-at Price. Skipped.';
-        }
-        break;
+    break;
 
-        case 'compare_fixed':                   
-            if (compare && !isNaN(compare)) {
-              newPrice = (compare - discountValue).toFixed(2);
-              newCompareAtPrice = compare.toFixed(2);
-              explanation = `💸 Base = Compare-at - ${discountValue}`;
-            } else {
-              explanation = '⚠️ No compare-at price, skipped.';
-            }          
-        break;
 
-          console.log("🧪 Received ruleType:", ruleType);
+  case 'copy_to_compare':
 
-        default:
-          console.warn(`❌ Unknown ruleType: ${ruleType}`);
-      }
+    if (!compare || isNaN(compare) || compare <= 0) {
 
-      if (newPrice || newCompareAtPrice) {
-        try {
-// NOTE: We are now using the bulk update approach for efficiency
-          // We will collect all updates and perform a single bulk update per product at the end of the loop.
-          // For now, we will use the single variant wrapper to maintain the existing logic flow.
-          // For optimal performance, the logic should be refactored to collect all updates and call updateMultipleVariantPrices once.
-          await updateVariantPrice(variantId, {
-            price: newPrice,
-            compareAtPrice: newCompareAtPrice,
-          });
+      newCompareAtPrice = base.toFixed(2);
 
-          const logEntry = {
-            id: variantId,
-            vendor: variant.vendor,
-            title: variant.title,
-            sku: variant.sku,
-            from: {
-              price: base,
-              compareAtPrice: compare,
-            },
-            to: {
-              price: newPrice || base,
-              compareAtPrice: newCompareAtPrice || compare,
-            },
-            explanation,
-          };
+      explanation = '📋 Compare-at was empty, copied from base price.';
 
-          priceChangeLog.push(logEntry);
+    } else {
 
-          console.log(`✅ Updated ${variantId}:`, logEntry);
-        } catch (err) {
-          console.error(`❌ Failed to update variant ${variantId}:`, err.message || err);
-        }
-      } else {
-        console.log(`⏭️ No change needed for variant ${variantId}: ${explanation}`);
-      }
+      explanation = '⚠️ Compare-at already exists, skipped.';
+
     }
 
-    console.log('🎉 Finished applying price rules!');
+    break;
 
-    return priceChangeLog;
-  } catch (err) {
-    console.error('❌ applyPriceLogic failed:', err.message || err);
-    return [];
-  }
+
+  case 'copy_to_base':
+
+    if (base == compare) {
+
+      explanation =
+        '⚠️ Base and Compare-at prices are already the same, skipped.';
+
+    } 
+    else if (compare && !isNaN(compare)) {
+
+      newPrice = compare.toFixed(2);
+      newCompareAtPrice = compare.toFixed(2);
+
+      explanation =
+        '💸 Base price copied from Compare-at price.';
+
+    } 
+    else {
+
+      explanation =
+        '⚠️ No compare-at price, skipped.';
+
+    }
+
+    break;
+
+
+
+  case 'compare_percentage':
+
+    // Compare-at must exist
+    if (
+      compare == null ||
+      compare <= 0 ||
+      isNaN(compare) ||
+      base == null ||
+      isNaN(base)
+    ) {
+
+      explanation =
+        '⚠️ Invalid, missing, or zero Compare-at Price. Skipped.';
+
+      break;
+    }
+
+
+    // Already discounted
+    if (compare > base) {
+
+      const currentDiscountPercentage =
+        ((compare - base) / compare) * 100;
+
+
+      explanation =
+        `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}%, skipped.`;
+
+      break;
+
+    }
+
+
+    // Apply discount
+    newPrice =
+      (compare * (1 - discountValue / 100)).toFixed(2);
+
+
+    newCompareAtPrice =
+      compare.toFixed(2);
+
+
+    explanation =
+      `✅ No existing discount. Applied ${discountValue}% discount to Compare-at Price.`;
+
+
+    break;
+
+
+
+
+  case 'compare_fixed':
+
+    // Compare-at must exist
+    if (
+      compare == null ||
+      compare <= 0 ||
+      isNaN(compare)
+    ) {
+
+      explanation =
+        '⚠️ No valid Compare-at Price, skipped.';
+
+      break;
+
+    }
+
+
+    // Already discounted
+    if (compare > base) {
+
+      const currentDiscountPercentage =
+        ((compare - base) / compare) * 100;
+
+
+      explanation =
+        `⚠️ Product already discounted by ${currentDiscountPercentage.toFixed(2)}%, skipped.`;
+
+      break;
+
+    }
+
+
+    // Apply fixed reduction
+    newPrice =
+      (compare - discountValue).toFixed(2);
+
+
+    newCompareAtPrice =
+      compare.toFixed(2);
+
+
+    explanation =
+      `💸 Base = Compare-at - ${discountValue}`;
+
+
+    break;
+
+
+
+  default:
+
+    console.warn(`❌ Unknown ruleType: ${ruleType}`);
+
+    explanation =
+      '❓ Unknown rule type';
+
 }
 
 
