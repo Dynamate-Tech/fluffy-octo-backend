@@ -483,7 +483,7 @@ async function getProductIdFromVariant(variantId) {
 // -------------------------
 // 🔹 Update Multiple Variant Prices (Core Function)
 // -------------------------
-export async function updateMultipleVariantPrices(productId, variants) {
+async function updateMultipleVariantPrices(productId, variants) {
   const mutation = `
     mutation productVariantsBulkUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
       productVariantsBulkUpdate(productId: $productId, variants: $variants) {
